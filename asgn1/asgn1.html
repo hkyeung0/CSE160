@@ -1,0 +1,72 @@
+  <!--Hoi Lee Yeung-->
+  <!--hkyeung@ucsc.edu-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Assignment 1</title>
+  </head>
+
+  <body onload="main()">
+    <canvas id="webgl" width="400" height="400">
+    Please use a browser that supports "canvas"
+    </canvas>
+	<p>
+	
+	<p id = "numdot"> XXX </p>
+	
+	<button type = "button" id = "green">Green</button>
+	<button type = "button" id = "red">Red</button>
+	<button type = "button" id = "clear">Clear</button>
+	
+	<p>
+	<button type = "button" id = "pointButton">Point</button>
+	<button type = "button" id = "triButton">Triangle</button>
+	<button type = "button" id = "cirButton">Circle</button>
+	
+	<p>
+	<button type = "button" id = "drawButton">Draw</button>
+	
+	<p>
+	<button type = "button" id = "randomColorButton">Random Color Change</button>
+	<p>
+	<button type = "button" id = "randomColorOffButton">Disable Random Color Change</button>
+
+    <p>
+	Red <input type = "range" min = "0" max = "100" value = "100" class = "slider" id = "redSlide">
+	<p>
+	Green <input type = "range" min = "0" max = "100" value = "100" class = "slider" id = "greenSlide">
+    <p>
+	Blue <input type = "range" min = "0" max = "100" value = "100" class = "slider" id = "blueSlide">
+	<p>
+	Size <input type = "range" min = "0" max = "50" value = "5" class = "slider" id = "sizeSlide">
+	<p>
+	Segment <input type = "range" min = "0" max = "50" value = "10" class = "slider" id = "segmentSlide">
+	
+	<p>
+	Drawing Reference 
+	<p>
+	<img src="deer.jpg" alt="reference" width="400" height="500">
+	
+	<p>
+	AWESOMENESS:
+	<p>
+	Everytime "Random Color Change" button is clicked, all shapes on the canvas change to a random color. 
+	<p>
+	After "Random Color Change" button is clicked, the canvas enters "Random Color mode".
+	<p>
+	While this mode is active, everytime a new shape is added to the canvas, all shapes on the canvas will change to a random color.
+    <p>	
+	Use "Disable Random Color Change" button to disable this mode and the canvas would return to original paint program.
+	
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+	<script src="Triangle.js"></script>
+	<script src="TriangleFree.js"></script>
+	<script src="Point.js"></script>
+	<script src="Circle.js"></script>
+    <script src="asgn1.js"></script>
+  </body>
+</html>
