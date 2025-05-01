@@ -1,0 +1,91 @@
+  <!--Hoi Lee Yeung-->
+  <!--hkyeung@ucsc.edu-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Blocky Animal</title>
+  </head>
+
+  <body onload="main()">
+    <canvas id="webgl" width="400" height="400">
+    Please use a browser that supports "canvas"
+    </canvas>
+	<p>
+	
+	<p id = "numdot"> XXX </p>
+	
+	<p>
+	Camera Angle X axis<input type = "range" min = "0" max = "360" value = "0" class = "slider" id = "angleSlide">
+	Camera Angle Y axis<input type = "range" min = "0" max = "360" value = "0" class = "slider" id = "angleSlideY">
+	<p>
+	Rotations:
+	<p>
+	Head <input type = "range" min = "0" max = "30" value = "0" class = "slider" id = "headSlide">
+	Mouth <input type = "range" min = "0" max = "45" value = "0" class = "slider" id = "mouthSlide">
+	Nose <input type = "range" min = "0" max = "45" value = "0" class = "slider" id = "noseSlide">
+	Left Ear <input type = "range" min = "0" max = "45" value = "0" class = "slider" id = "leftEarSlide">
+	Right Ear <input type = "range" min = "0" max = "45" value = "0" class = "slider" id = "rightEarSlide">
+	<p>
+	Front Left Upper Leg <input type = "range" min = "0" max = "45" value = "0" class = "slider" id = "frontleftupperlegSlide">
+	Front Right Upper Leg <input type = "range" min = "0" max = "45" value = "0" class = "slider" id = "frontrightupperlegSlide">
+	Front Left Lower Leg <input type = "range" min = "0" max = "45" value = "0" class = "slider" id = "frontleftlowerlegSlide">
+	Front Right Lower Leg <input type = "range" min = "0" max = "45" value = "0" class = "slider" id = "frontrightlowerlegSlide">
+	<p>
+	Back Left Upper Leg <input type = "range" min = "0" max = "45" value = "0" class = "slider" id = "backleftupperlegSlide">
+	Back Right Upper Leg <input type = "range" min = "0" max = "45" value = "0" class = "slider" id = "backrightupperlegSlide">
+	Back Left Lower Leg <input type = "range" min = "0" max = "45" value = "0" class = "slider" id = "backleftlowerlegSlide">
+	Back Right Lower Leg <input type = "range" min = "0" max = "45" value = "0" class = "slider" id = "backrightlowerlegSlide">
+	<p>
+	Front Left Paw <input type = "range" min = "0" max = "30" value = "0" class = "slider" id = "flpSlide">
+	Front Right Paw <input type = "range" min = "0" max = "30" value = "0" class = "slider" id = "frpSlide">
+	Back Left Paw <input type = "range" min = "0" max = "30" value = "0" class = "slider" id = "blpSlide">
+	Back Right Paw <input type = "range" min = "0" max = "30" value = "0" class = "slider" id = "brpSlide">
+	
+	<p>
+	Upper Tail <input type = "range" min = "0" max = "45" value = "0" class = "slider" id = "tailupperSlide">
+    <p>
+	Head Animation:
+	<button type='button' id = "animationHeadOn">ON</button>
+	<button type='button' id = "animationHeadOff">OFF</button>
+	<p>
+	Ear Animation:
+	<button type='button' id = "animationEarOn">ON</button>
+	<button type='button' id = "animationEarOff">OFF</button>
+	<p>
+	Tail Animation:
+	<button type='button' id = "animationTailOn">ON</button>
+	<button type='button' id = "animationTailOff">OFF</button>
+	<p>
+	Front Leg Animation:
+	<button type='button' id = "animationFrontLegOn">ON</button>
+	<button type='button' id = "animationFrontLegOff">OFF</button>
+	<p>
+	Back Leg Animation:
+	<button type='button' id = "animationBackLegOn">ON</button>
+	<button type='button' id = "animationBackLegOff">OFF</button>
+	<p>
+	All Animation:
+	<button type='button' id = "allOn">ON</button>
+	<button type='button' id = "allOff">OFF</button>
+	<p>
+	Notes: 
+	<p>- This animal is a wolf
+	<P>- Using class for cubes
+	<p>- Paws are third level joints
+	<p>- Use On and Off buttons to control animations
+	<p>- Used pyramids as non-cube primitive
+	<p>- Shift click to do jump animation
+	<p>- Drag mouse on canvas to rotate animal 
+	
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+	<script src="lib/cuon-matrix.js"></script>
+	<script src="Triangle.js"></script>
+    <script src="BlockyAnimal.js"></script>
+	<script src="Cube.js"></script>
+	<script src="Pyramid.js"></script>
+  </body>
+</html>
