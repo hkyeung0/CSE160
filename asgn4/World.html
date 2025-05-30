@@ -1,0 +1,58 @@
+  <!--Hoi Lee Yeung-->
+  <!--hkyeung@ucsc.edu-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Lighting</title>
+  </head>
+
+  <body onload="main()">
+    <canvas id="webgl" width="400" height="400">
+    Please use a browser that supports "canvas"
+    </canvas>
+	<p>
+	
+	<p id = "numdot"> XXX </p>
+	
+	<p>
+	<button type='button' id = "normalOn">Normal On</button>
+	<button type='button' id = "normalOff">Normal Off</button>
+	<p>
+	Light X <input type="range" min="-500" max="500" value = "0" class="slider" id="lightSlideX">
+	Light Y <input type="range" min="-500" max="500" value = "100" class="slider" id="lightSlideY">
+	Light Z <input type="range" min="-500" max="500" value = "-200" class="slider" id="lightSlideZ">
+	<p>
+	<button type='button' id = "lightOn">Light On</button>
+	<button type='button' id = "lightOff">Light Off</button>
+	<p>
+	<button type='button' id = "sOn">Spot Light On</button>
+	<button type='button' id = "sOff">Spot Light Off</button>
+	<p>
+	<button type='button' id = "aOn">Animation On</button>
+	<button type='button' id = "aOff">Animation Off</button>
+	<p>
+	Notes: 
+	<p>- W -- Forward
+	<p>- S -- Backward
+	<p>- A -- Left
+	<p>- D -- Right
+	<p>- Q -- Rotate Left
+	<p>- E -- Rotate Right
+	<p>- Z -- Up
+	<p>- X -- Down
+	<p>- Added blocky animal with lighting.
+	
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+	<script src="Triangle.js"></script>
+    <script src="World.js"></script>
+	<script src="Cube.js"></script>
+	<script src="Pyramid.js"></script>
+	<script src="Camera.js"></script>
+	<script src="Sphere.js"></script>
+	<script src="lib/cuon-matrix-cse160.js"></script>
+  </body>
+</html>
