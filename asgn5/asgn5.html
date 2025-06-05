@@ -1,0 +1,750 @@
+<!-- Licensed under a BSD license. See license.html for license -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Asgn5</title>
+    <style>
+    html, body {
+        margin: 0;
+        height: 100%;
+    }
+    #c {
+        width: 100%;
+        height: 92%;
+        display: block;
+    }
+    </style>
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+  </body>
+<script type="importmap">
+{
+	"imports": {
+	"three": "https://cdn.jsdelivr.net/npm/three@v0.177.0/build/three.module.js",
+	"three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.177.0/examples/jsm/"
+	}
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
+
+function main() {
+
+	const canvas = document.querySelector( '#c' );
+	const renderer = new THREE.WebGLRenderer( { antialias: true, canvas } );
+
+	const fov = 80;
+	const aspect = 2; // the canvas default
+	const near = 0.1;
+	const far = 100;
+	const camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
+	camera.position.set( 0, 10, 20 );
+
+	class MinMaxGUIHelper {
+
+		constructor( obj, minProp, maxProp, minDif ) {
+
+			this.obj = obj;
+			this.minProp = minProp;
+			this.maxProp = maxProp;
+			this.minDif = minDif;
+
+		}
+		get min() {
+
+			return this.obj[ this.minProp ];
+
+		}
+		set min( v ) {
+
+			this.obj[ this.minProp ] = v;
+			this.obj[ this.maxProp ] = Math.max( this.obj[ this.maxProp ], v + this.minDif );
+
+		}
+		get max() {
+
+			return this.obj[ this.maxProp ];
+
+		}
+		set max( v ) {
+
+			this.obj[ this.maxProp ] = v;
+			this.min = this.min; // this will call the min setter
+
+		}
+
+	}
+
+	class ColorGUIHelper {
+		constructor(object, prop) {
+			this.object = object;
+			this.prop = prop;
+		}
+	get value() {
+		return `#${this.object[this.prop].getHexString()}`;
+	}
+	set value(hexString) {
+		this.object[this.prop].set(hexString);
+	}
+}
+
+	function updateCamera() {
+
+		camera.updateProjectionMatrix();
+
+	}
+
+	const gui = new GUI();
+	gui.add( camera, 'fov', 1, 180 ).onChange( updateCamera );
+	const minMaxGUIHelper = new MinMaxGUIHelper( camera, 'near', 'far', 0.1 );
+	gui.add( minMaxGUIHelper, 'min', 0.1, 100, 0.1 ).name( 'near' ).onChange( updateCamera );
+	gui.add( minMaxGUIHelper, 'max', 0.1, 100, 0.1 ).name( 'far' ).onChange( updateCamera );
+
+	const controls = new OrbitControls( camera, canvas );
+	controls.target.set( 0, 5, 0 );
+	controls.update();
+
+	const scene = new THREE.Scene();
+	scene.background = new THREE.Color( 'black' );
+	
+	// floor
+	{
+
+		const planeSize = 80;
+
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load( 'resources/images/grass2.jpg' );
+		texture.wrapS = THREE.RepeatWrapping;
+		texture.wrapT = THREE.RepeatWrapping;
+		texture.magFilter = THREE.NearestFilter;
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const repeats = planeSize / 2;
+		texture.repeat.set( repeats, repeats );
+
+		const planeGeo = new THREE.PlaneGeometry( planeSize, planeSize );
+		const planeMat = new THREE.MeshPhongMaterial( {
+			map: texture,
+			side: THREE.DoubleSide,
+		} );
+		const mesh = new THREE.Mesh( planeGeo, planeMat );
+		mesh.rotation.x = Math.PI * - .5;
+		scene.add( mesh );
+
+	}
+	
+	//skybox
+	{
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load(
+			'resources/images/forest.jpg',
+			() => {
+		texture.mapping = THREE.EquirectangularReflectionMapping;
+		texture.colorSpace = THREE.SRGBColorSpace;
+		scene.background = texture;
+		});
+	}
+	// heart
+{
+const shape = new THREE.Shape();
+const x = -2.5;
+const y = 10;
+const steps = 1;
+const depth = 1.0;
+const bevelEnabled = true;
+const bevelThickness = 1;
+const bevelSize = 1;
+const bevelSegments = 2;
+shape.moveTo(x + 2.5, y + 2.5);
+shape.bezierCurveTo(x + 2.5, y + 2.5, x + 2, y, x, y);
+shape.bezierCurveTo(x - 3, y, x - 3, y + 3.5, x - 3, y + 3.5);
+shape.bezierCurveTo(x - 3, y + 5.5, x - 1.5, y + 7.7, x + 2.5, y + 9.5);
+shape.bezierCurveTo(x + 6, y + 7.7, x + 8, y + 4.5, x + 8, y + 3.5);
+shape.bezierCurveTo(x + 8, y + 3.5, x + 8, y, x + 5, y);
+shape.bezierCurveTo(x + 3.5, y, x + 2.5, y + 2.5, x + 2.5, y + 2.5);
+
+const extrudeSettings = { steps,depth, bevelEnabled, bevelThickness,bevelSize,bevelSegments };
+
+const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+const material = new THREE.MeshPhongMaterial({color: '#e81414'});
+const mesh = new THREE.Mesh(geometry, material);
+mesh.rotation.z = 3.2;
+mesh.position.y = 20;
+mesh.scale.set(.5,.5,.5);
+scene.add(mesh);
+	function render(time) {
+		time *= 0.001;  // convert time to seconds
+ 
+		mesh.rotation.y = time;
+		//cube.rotation.y = time;
+ 
+		renderer.render(scene, camera);
+ 
+		requestAnimationFrame(render);
+}
+	requestAnimationFrame(render);
+}
+
+	{
+		// bamboo
+		const rt = .2;
+		const rb = .2;
+		const h = 20;
+		const rs = 12;
+		const bamboo = new THREE.CylinderGeometry( rt, rb, h, rs );
+		const cubeMat = new THREE.MeshPhongMaterial( { color: '#78e814' } );
+		const mesh = new THREE.Mesh( bamboo, cubeMat );
+		mesh.position.set( 6,6,6 );
+		scene.add( mesh );
+
+	}
+	
+	{
+		// bamboo
+		const rt = .2;
+		const rb = .2;
+		const h = 20;
+		const rs = 12;
+		const bamboo = new THREE.CylinderGeometry( rt, rb, h, rs );
+		const cubeMat = new THREE.MeshPhongMaterial( { color: '#78e814' } );
+		const mesh = new THREE.Mesh( bamboo, cubeMat );
+		mesh.position.set( 8,6,-8 );
+		scene.add( mesh );
+
+	}
+	
+	{
+		// bamboo
+		const rt = .2;
+		const rb = .2;
+		const h = 20;
+		const rs = 12;
+		const bamboo = new THREE.CylinderGeometry( rt, rb, h, rs );
+		const cubeMat = new THREE.MeshPhongMaterial( { color: '#78e814' } );
+		const mesh = new THREE.Mesh( bamboo, cubeMat );
+		mesh.position.set( -10,6,6 );
+		scene.add( mesh );
+
+	}
+	
+	{
+		// bamboo
+		const rt = .2;
+		const rb = .2;
+		const h = 20;
+		const rs = 12;
+		const bamboo = new THREE.CylinderGeometry( rt, rb, h, rs );
+		const cubeMat = new THREE.MeshPhongMaterial( { color: '#78e814' } );
+		const mesh = new THREE.Mesh( bamboo, cubeMat );
+		mesh.position.set( -15,6,8 );
+		scene.add( mesh );
+
+	}
+	
+	{
+		// bamboo
+		const rt = .2;
+		const rb = .2;
+		const h = 20;
+		const rs = 12;
+		const bamboo = new THREE.CylinderGeometry( rt, rb, h, rs );
+		const cubeMat = new THREE.MeshPhongMaterial( { color: '#78e814' } );
+		const mesh = new THREE.Mesh( bamboo, cubeMat );
+		mesh.position.set( 13,6,8 );
+		scene.add( mesh );
+
+	}
+	// tree trunk
+	{
+		const rt = 2;
+		const rb = 3;
+		const h = 20;
+		const rs = 12;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/tree.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const bamboo = new THREE.CylinderGeometry( rt, rb, h, rs );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( bamboo, cubeMat );
+		mesh.position.set( 15,6,-15 );
+		scene.add( mesh );
+
+	}
+	// tree top
+	{
+		const cubeSize = 12;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/leaf.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const cubeGeo = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( cubeGeo, cubeMat );
+		mesh.position.set( 15, 20, -15 );
+		scene.add( mesh );
+
+	}
+	// tree trunk
+	{
+		const rt = 1.5;
+		const rb = 2;
+		const h = 10;
+		const rs = 12;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/tree.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const bamboo = new THREE.CylinderGeometry( rt, rb, h, rs );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( bamboo, cubeMat );
+		mesh.position.set( -4,6,-24 );
+		scene.add( mesh );
+
+	}
+	// tree top
+	{
+		const cubeSize = 7;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/leaf.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const cubeGeo = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( cubeGeo, cubeMat );
+		mesh.position.set( -4, 10, -24 );
+		scene.add( mesh );
+
+	}
+	// tree 2 trunk
+	{
+		const rt = 2;
+		const rb = 3;
+		const h = 20;
+		const rs = 12;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/tree.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const bamboo = new THREE.CylinderGeometry( rt, rb, h, rs );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( bamboo, cubeMat );
+		mesh.position.set( -13,6,-8 );
+		scene.add( mesh );
+
+	}
+	// tree 2 top
+	{
+		const cubeSize = 12;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/leaf.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const cubeGeo = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( cubeGeo, cubeMat );
+		mesh.position.set( -13, 20, -8 );
+		scene.add( mesh );
+
+	}
+	// sphere
+	{
+
+		const sphereRadius = 2;
+		const sphereWidthDivisions = 32;
+		const sphereHeightDivisions = 16;
+		const sphereGeo = new THREE.SphereGeometry( sphereRadius, sphereWidthDivisions, sphereHeightDivisions );
+		const sphereMat = new THREE.MeshPhongMaterial( { color: '#f96d30' } );
+		const mesh = new THREE.Mesh( sphereGeo, sphereMat );
+		mesh.position.set( 0, sphereRadius, 8 );
+		scene.add( mesh );
+
+	}
+	//light directional
+	{
+
+		const color = 0xFFFFFF;
+		const intensity = 5;
+		const light = new THREE.DirectionalLight( color, intensity );
+		light.position.set( 5, 10, 2 );
+		light.target.position.set( - 5, 0, 0 );
+		scene.add( light );
+		scene.add( light.target );
+		gui.add(light, 'intensity', 0, 5, 0.01).name('directional intensity');
+		gui.add(light.position, 'x', -10, 10);
+		gui.add(light.position, 'z', -10, 10);
+		gui.add(light.position, 'y', 0, 10);
+	}
+	// light ambient 
+	{
+		
+		const color = 0xFFFFFF;
+		const intensity = 1;
+		const light = new THREE.AmbientLight(color, intensity);
+		scene.add(light);
+		
+		//const gui = new GUI();
+		gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('ambient color');
+		gui.add(light, 'intensity', 0, 5, 0.01).name('ambient intensity');
+
+	}
+	// light hemisphere
+	{
+		
+		const skyColor = 0xB1E1FF;  // light blue
+		const groundColor = 0xB97A20;  // brownish orange
+		const intensity = 1;
+		const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+		scene.add(light);
+
+		gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('skyColor');
+		gui.addColor(new ColorGUIHelper(light, 'groundColor'), 'value').name('groundColor');
+		gui.add(light, 'intensity', 0, 5, 0.01).name('hemisphere intensity');
+		
+	}
+	// rock
+	{
+
+		const mtlLoader = new MTLLoader();
+		mtlLoader.load('Rock/materials.mtl', (mtl) => {
+		
+			mtl.preload();
+			const objLoader = new OBJLoader();
+			objLoader.setMaterials(mtl)
+			objLoader.load( 'Rock/model.obj', ( root ) => {
+				root.scale.set(4, 4, 4);
+				root.position.set(8, 1, -3);
+
+				scene.add( root );
+				
+			} );
+		} );
+
+	}
+	// rock
+	{
+
+		const mtlLoader = new MTLLoader();
+		mtlLoader.load('Rock/materials.mtl', (mtl) => {
+		
+			mtl.preload();
+			const objLoader = new OBJLoader();
+			objLoader.setMaterials(mtl)
+			objLoader.load( 'Rock/model.obj', ( root ) => {
+				root.scale.set(4, 7, 4);
+				root.position.set(-4, 1, -15);
+
+				scene.add( root );
+				
+			} );
+		} );
+
+	}
+	// leaf
+	{
+		const cubeSize = 1;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/leafs.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const cubeGeo = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( cubeGeo, cubeMat );
+		mesh.scale.set(.8, .1, 1);
+		mesh.position.set(13, 5, 8.5);
+		mesh.rotation.x = -2;
+		scene.add(mesh);
+	}
+	// leaf
+	{
+		const cubeSize = 1;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/leafs.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const cubeGeo = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( cubeGeo, cubeMat );
+		mesh.scale.set(.8, .1, 1);
+		mesh.position.set(13, 10, 7.5);
+		mesh.rotation.x = 2;
+		scene.add(mesh);
+	}
+	// leaf
+	{
+		const cubeSize = 1;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/leafs.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const cubeGeo = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( cubeGeo, cubeMat );
+		mesh.scale.set(.8, .1, 1);
+		mesh.position.set(-15, 5, 7.5);
+		mesh.rotation.x = 2;
+		scene.add(mesh);
+	}
+	// leaf
+	{
+		const cubeSize = 1;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/leafs.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const cubeGeo = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( cubeGeo, cubeMat );
+		mesh.scale.set(.8, .1, 1);
+		mesh.position.set(-15, 10, 8.5);
+		mesh.rotation.x = -2;
+		scene.add(mesh);
+	}
+	// leaf
+	{
+		const cubeSize = 1;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/leafs.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const cubeGeo = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( cubeGeo, cubeMat );
+		mesh.scale.set(.8, .1, 1);
+		mesh.position.set(-10, 5, 5.5);
+		mesh.rotation.x = 2;
+		scene.add(mesh);
+	}
+	// leaf
+	{
+		const cubeSize = 1;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/leafs.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const cubeGeo = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( cubeGeo, cubeMat );
+		mesh.scale.set(.8, .1, 1);
+		mesh.position.set(-10, 10, 6.5);
+		mesh.rotation.x = -2;
+		scene.add(mesh);
+	}
+	// leaf
+	{
+		const cubeSize = 1;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/leafs.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const cubeGeo = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( cubeGeo, cubeMat );
+		mesh.scale.set(.8, .1, 1);
+		mesh.position.set(8, 5, -7.5);
+		mesh.rotation.x = 2;
+		scene.add(mesh);
+	}
+	// leaf
+	{
+		const cubeSize = 1;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/leafs.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const cubeGeo = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( cubeGeo, cubeMat );
+		mesh.scale.set(.8, .1, 1);
+		mesh.position.set(8, 10, -8.5);
+		mesh.rotation.x = -2;
+		scene.add(mesh);
+	}
+	// leaf
+	{
+		const cubeSize = 1;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/leafs.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const cubeGeo = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( cubeGeo, cubeMat );
+		mesh.scale.set(.8, .1, 1);
+		mesh.position.set(6, 5, 6.5);
+		mesh.rotation.x = 2;
+		scene.add(mesh);
+	}
+	// leaf
+	{
+		const cubeSize = 1;
+		const loader = new THREE.TextureLoader();
+		const texture = loader.load('resources/images/leafs.jpg');
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const cubeGeo = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
+		const cubeMat = new THREE.MeshPhongMaterial( { map: texture } );
+		const mesh = new THREE.Mesh( cubeGeo, cubeMat );
+		mesh.scale.set(.8, .1, 1);
+		mesh.position.set(6, 10, 5.5);
+		mesh.rotation.x = -2;
+		scene.add(mesh);
+	}
+var aaa = { Dinosaur: false };
+var p = null;
+var d = null;
+// panda
+const mtlLoader = new MTLLoader();
+mtlLoader.load('Panda/Mesh_Panda.mtl', (mtl) => {
+	mtl.preload();
+	const objLoader = new OBJLoader();
+	objLoader.setMaterials(mtl);
+	objLoader.load('Panda/Mesh_Panda.obj', (root) => {
+		root.scale.set(0.05, 0.05, 0.05);
+		root.position.set(0, 4, 0);
+		scene.add(root);
+		p = root;
+	});
+});
+
+gui.add(aaa, 'Dinosaur').onChange(function (value) {
+
+	if (aaa.Dinosaur === false) {
+		if (d) {
+			scene.remove(d);
+			d = null;
+		}
+
+		const mtlLoader = new MTLLoader();
+		mtlLoader.load('Panda/Mesh_Panda.mtl', (mtl) => {
+			mtl.preload();
+			const objLoader = new OBJLoader();
+			objLoader.setMaterials(mtl);
+			objLoader.load('Panda/Mesh_Panda.obj', (root) => {
+				root.scale.set(0.05, 0.05, 0.05);
+				root.position.set(0, 4, 0);
+				scene.add(root);
+				p = root;
+			});
+		});
+	} else {
+		if (p) {
+			scene.remove(p);
+			p = null;
+		}
+
+		const mtlLoader = new MTLLoader();
+		mtlLoader.load('T-Rex/Mesh_Dinosaur.mtl', (mtl) => {
+			mtl.preload();
+			const objLoader = new OBJLoader();
+			objLoader.setMaterials(mtl);
+			objLoader.load('T-Rex/Mesh_Dinosaur.obj', (root) => {
+				root.scale.set(0.05, 0.05, 0.05);
+				root.position.set(0, 6, 0);
+				scene.add(root);
+				d = root; 
+			});
+		});
+	}
+});
+	// tiger
+	{
+
+		const mtlLoader = new MTLLoader();
+		mtlLoader.load('Tiger/Mesh_BengalTiger.mtl', (mtl) => {
+		
+			mtl.preload();
+			const objLoader = new OBJLoader();
+			objLoader.setMaterials(mtl)
+			objLoader.load( 'Tiger/Mesh_BengalTiger.obj', ( root ) => {
+				root.scale.set(.07, .07, .07);
+				root.position.set(-10, 4, 0);
+				root.rotation.y = 1 ;
+
+				scene.add( root );
+				
+			} );
+		} );
+
+	}
+	// ram
+	{
+
+		const mtlLoader = new MTLLoader();
+		mtlLoader.load('Ram/Mesh_Ram.mtl', (mtl) => {
+		
+			mtl.preload();
+			const objLoader = new OBJLoader();
+			objLoader.setMaterials(mtl)
+			objLoader.load( 'Ram/Mesh_Ram.obj', ( root ) => {
+				root.scale.set(.07, .07, .07);
+				root.position.set(20, 4, 0);
+				root.rotation.y = -2.5 ;
+
+				scene.add( root );
+				
+			} );
+		} );
+
+	}
+	// elephant
+	{
+
+		const mtlLoader = new MTLLoader();
+		mtlLoader.load('Elephant/Elephant.mtl', (mtl) => {
+		
+			mtl.preload();
+			const objLoader = new OBJLoader();
+			objLoader.setMaterials(mtl)
+			objLoader.load( 'Elephant/Elephant.obj', ( root ) => {
+				root.scale.set(2,  2, 2);
+				root.position.set(10, 0, -20);
+				root.rotation.y = -1.5 ;
+
+				scene.add( root );
+				
+			} );
+		} );
+
+	}
+	
+	function resizeRendererToDisplaySize( renderer ) {
+
+		const canvas = renderer.domElement;
+		const width = canvas.clientWidth;
+		const height = canvas.clientHeight;
+		const needResize = canvas.width !== width || canvas.height !== height;
+		if ( needResize ) {
+
+			renderer.setSize( width, height, false );
+
+		}
+
+		return needResize;
+
+	}
+	
+
+	function render() {
+	
+		if ( resizeRendererToDisplaySize( renderer ) ) {
+
+			const canvas = renderer.domElement;
+			camera.aspect = canvas.clientWidth / canvas.clientHeight;
+			camera.updateProjectionMatrix();
+
+		}
+
+		renderer.render( scene, camera );
+
+		requestAnimationFrame( render );
+
+	}
+
+	requestAnimationFrame( render );
+	
+
+}
+
+main();
+</script>
+<p>
+Notes: <p>
+ - Shapes: Cubes, Cylinder, Sphere, Heart <p>
+ - 20+ shapes, multiple textures and 3D models (obj) <p>
+ - Animation on Heart <p>
+ - Drag mouse to move the camera <p>
+ - Lights: Directional, Ambient, Hemisphere, with controls <p>
+ - Extra Features: Multiple animal 3D models, click "Dinosaur" check box to turn panda into dinosaur <p>
+</html>
